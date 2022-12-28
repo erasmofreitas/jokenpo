@@ -11,14 +11,13 @@ class Jogo extends StatefulWidget {
 class _JogoState extends State<Jogo> {
   var _imagemApp = const AssetImage("images/padrao.png");
   var _txtResultado = "Escolha uma opção abaixo";
+  var _placarApp = 0;
+  var _placarVoce = 0;
 
   void _opcaoSelecionada(String escolhaUsuario) {
     var opcoes = ["pedra", "papel", "tesoura"];
     var numero = Random().nextInt(3);
     var escolhaApp = opcoes[numero];
-
-    print("Escolha do App: " + escolhaApp);
-    print("Escolha do Usuário: " + escolhaUsuario);
 
     //Exibição da imagem escolhida pelo App
     switch (escolhaApp) {
@@ -45,6 +44,7 @@ class _JogoState extends State<Jogo> {
         (escolhaUsuario == "papel" && escolhaApp == "pedra")) {
       setState(() {
         _txtResultado = "Parabéns você ganhou!";
+        _placarVoce++;
       });
     } // App Ganhador
     else if ((escolhaUsuario == "tesoura" && escolhaApp == "pedra") ||
@@ -52,12 +52,23 @@ class _JogoState extends State<Jogo> {
         (escolhaUsuario == "pedra" && escolhaApp == "papel")) {
       setState(() {
         _txtResultado = "Você perdeu!";
+        _placarApp++;
       });
     } else {
       setState(() {
         _txtResultado = "Empatamos!";
       });
     }
+  }
+
+  //Reiniciar placar
+  _reiniciarPlacar() {
+    setState(() {
+      _placarApp = 0;
+      _placarVoce = 0;
+      _txtResultado = "Escolha uma opção abaixo";
+      _imagemApp = const AssetImage("images/padrao.png");
+    });
   }
 
   @override
@@ -70,7 +81,61 @@ class _JogoState extends State<Jogo> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Padding(
-            padding: EdgeInsets.only(top: 32, bottom: 16),
+            padding: EdgeInsets.only(top: 32, bottom: 10),
+            child: Text(
+              "Placar",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(top: 10, bottom: 10),
+                child: Text(
+                  "App:",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Text(
+                _placarApp.toString(),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(top: 10, bottom: 10),
+                child: Text(
+                  "Você:",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Text(
+                _placarVoce.toString(),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const Padding(
+            padding: EdgeInsets.only(top: 16, bottom: 16),
             child: Text(
               "Escolha do App:",
               textAlign: TextAlign.center,
@@ -122,8 +187,61 @@ class _JogoState extends State<Jogo> {
               ),
             ],
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 16, bottom: 10),
+                child: TextButton(
+                  style: const ButtonStyle(
+                    backgroundColor:
+                        MaterialStatePropertyAll(Colors.greenAccent),
+                  ),
+                  onPressed: () => _reiniciarPlacar(),
+                  child: const Text("Reiniciar"),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 16, bottom: 10),
+                child: TextButton(
+                  style: const ButtonStyle(
+                    backgroundColor:
+                        MaterialStatePropertyAll(Colors.greenAccent),
+                  ),
+                  onPressed: () => _dialogBuilder(context),
+                  child: const Text("Regra do jogo"),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
+}
+
+Future<void> _dialogBuilder(BuildContext context) {
+  return showDialog<void>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Regra do jogo'),
+        content: Image.asset(
+          "images/jokenpo_regra.jpg",
+          height: 95,
+        ),
+        actions: <Widget>[
+          TextButton(
+            style: TextButton.styleFrom(
+              textStyle: Theme.of(context).textTheme.labelLarge,
+            ),
+            child: const Text('OK'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
 }
